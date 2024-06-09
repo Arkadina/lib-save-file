@@ -24,8 +24,8 @@ export class Save {
     data,
     replaceExistingFile = true,
   }: SaveTypes.SaveFile): Promise<void> {
-    let fileFullName = `${this._dir}/${this._src}/${folder}/${name}.${ext}`;
-    let directory = `${this._dir}/${this._src}/${folder}`;
+    let directory = path.join(this._dir, this._src, folder || "");
+    let fileFullName = `${directory}/${name}.${ext}`;
 
     await this.createDirectory(directory);
     await fs
@@ -34,9 +34,7 @@ export class Save {
         if (replaceExistingFile) {
           return await fs.writeFile(fileFullName, data);
         }
-        let fileNewFullName = `${this._dir}/${
-          this._src
-        }/${folder}/${name}-${new Date().valueOf()}.${ext}`;
+        let fileNewFullName = `${directory}/${name}-${new Date().valueOf()}.${ext}`;
         await fs.writeFile(fileNewFullName, data);
       })
       .catch(async () => {
@@ -44,6 +42,26 @@ export class Save {
       });
 
     if (message) console.log(message);
+  }
+
+  async saveFiles({ message, folder, data }: SaveTypes.SaveFiles) {
+    let directory = path.join(this._dir, this._src, folder || "");
+
+    await this.createDirectory(directory);
+
+    data.map(async (files) => {
+      let fileFolder = path.join(directory, files.folder || "");
+
+      // `${this._dir}/${this._src}/${folder}/${files.folder}`;
+      files.folder && (await this.createDirectory(fileFolder));
+
+      files.files.map(async (file) => {
+        let ext = file.ext || "json";
+        let fileFullName = `${fileFolder}/${file.name}.${ext}`;
+
+        await fs.writeFile(fileFullName, file.data);
+      });
+    });
   }
 
   private async createDirectory(directory: string) {

@@ -1,4 +1,4 @@
-export declare namespace SaveTypes  {
+export declare namespace SaveTypes {
   export interface Configuration {
     src: string;
   }
@@ -10,5 +10,22 @@ export declare namespace SaveTypes  {
     ext: string;
     data: any;
     replaceExistingFile?: boolean;
+  }
+
+  export interface SaveFiles {
+    message?: string;
+    folder?: string;
+    data: Data[];
+  }
+
+  interface Data {
+    folder?: string | undefined;
+    files: File[];
+  }
+
+  interface File {
+    ext?: string;
+    name: string;
+    data: any;
   }
 }
